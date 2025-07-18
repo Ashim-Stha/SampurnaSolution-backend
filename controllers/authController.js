@@ -2,8 +2,8 @@
 const bcrypt = require("bcryptjs");
 
 const User = require("../model/User");
-
 const generateToken = require("../utils/generateToken");
+const response = require("../utils/responseHandler");
 
 const registerUser = async (req, res) => {
   try {
@@ -11,7 +11,7 @@ const registerUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).send("user already exists");
+      return response(res, 400, "User already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -26,9 +26,12 @@ const registerUser = async (req, res) => {
     const accessToken = generateToken({ username, email });
     await newUser.save();
 
-    return res.status(201).send(accessToken);
+    return response(res, 201, "User created successfully", {
+      username: newUser.username,
+      email: newUser.email,
+    });
   } catch (e) {
-    return res.status(500).send(e.message);
+    return response(res, 500, "Internal Server Error", e.message);
   }
 };
 

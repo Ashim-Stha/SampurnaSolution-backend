@@ -24,6 +24,9 @@ const registerUser = async (req, res) => {
     });
 
     const accessToken = generateToken({ username, email });
+    res.cookie("auth_token", accessToken, {
+      httpOnly: true,
+    });
     await newUser.save();
 
     return response(res, 201, "User created successfully", {
